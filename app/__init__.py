@@ -20,9 +20,11 @@ def not_found(error):
 
 # Import a module / component using its blueprint handler variable (mod_auth)
 from app.catalog.controller import catalog
+from app.auth.controller import auth
 
 # Register blueprint(s)
 app.register_blueprint(catalog)
+app.register_blueprint(auth)
 # app.register_blueprint(xyz_module)
 # ..
 
