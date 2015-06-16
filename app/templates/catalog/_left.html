@@ -1,0 +1,8 @@
+<h5>Catalog List</h5>
+<ul>
+{% for item in catalog %}
+	<li><a href="{{ url_for('catalog.detail',catalog=item.name) }}">{{ item.name}}</a></li>
+{% endfor%}
+</ul>
+
+<a class="btn btn-default">Create</a>

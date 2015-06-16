@@ -1,0 +1,13 @@
+<span>{{ catalog_name }}</span>
+
+{% if not is_main %}
+			<a class="btn btn-default">Edit</a>
+			<span>&nbsp;&nbsp;&nbsp;</span>
+			<a class="btn btn-default">Delete</a>
+{% endif %}
+<ul>
+{% for item in items %}
+	<li><a href="{{ url_for('catalog.item_detail',catalog=item.catalog_name,item=item.name) }}">{{ item.name}}</a></li>
+{% endfor%}
+</ul>
+<a class="btn btn-default">Create</a>

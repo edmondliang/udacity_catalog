@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block css %}
+        <!-- Bootstrap-->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+        {% endblock %}
+
+        <title>{{ title }} - Catalog </title>
+    {% endblock %}
+</head>
+<body>
+
+    <div id="header" class="containter">
+        {% block header %}
+            <h1>Catalog</h1>
+        {% endblock %}
+    </div>
+    <div id="content" class="containter">
+        {% block content %}
+            content
+        {% endblock %}
+    </div>
+    <div id="footer" class="containter">
+        {% block footer %}
+        &copy; Copyright 2015 by <a href="{{ url_for('catalog.index') }}">EDMOND</a>.
+        {% endblock %}
+    </div>
+</body>
+
+
+{% block js %}
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    
+{% endblock %}
+
+</html>
