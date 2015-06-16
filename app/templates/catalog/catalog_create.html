@@ -1,0 +1,29 @@
+{% extends "layout/_base.html" %}
+{% import "macros/_form.html" as form %}
+{% import "macros/_html.html" as html %}
+{% block content %}
+
+
+<div class="row">
+	
+	<div class="panel panel-default">
+	<div class="panel-heading">Catalog - create </div>
+		<div class="panel-body">
+			<form action="{{ url_for('catalog.create') }}">
+				<p>{{ form.label('id','Name') }} {{ form.input('name') }}</p>
+				<p>{{ form.submit('OK') }} {{ form.url_button('Cancel',url_for('catalog.index')) }}</p>
+			</form>
+		</div>
+
+	</div>
+
+
+
+</div>
+
+
+
+
+
+
+{% endblock %}

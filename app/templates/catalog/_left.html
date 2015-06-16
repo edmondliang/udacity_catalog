@@ -1,8 +1,9 @@
+{% import "macros/_html.html" as html %}
 <h5>Catalog List</h5>
 <ul>
 {% for item in catalog %}
-	<li><a href="{{ url_for('catalog.detail',catalog=item.name) }}">{{ item.name}}</a></li>
+	<li>{{ html.link(item.name,url_for('catalog.detail',catalog=item.name)  ) }}</li>
 {% endfor%}
 </ul>
 
-<a class="btn btn-default">Create</a>
+{{ html.link('Create',url_for('catalog.create')) }}

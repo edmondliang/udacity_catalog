@@ -1,5 +1,5 @@
 {% extends "layout/_base.html" %}
-
+{% import "macros/_form.html" as form %}
 {% set title = "Catalog List" %}
 
 
@@ -15,9 +15,9 @@
 			{{ item.text }}
 		</div>
 		<p>
-			<button type="button" class="btn btn-default">Edit</button>
-			<span>&nbsp;&nbsp;&nbsp;</span>
-			<button type="button" class="btn btn-default">Delete</button>
+			{{ form.url_button('Edit',url_for('catalog.item_edit',catalog=item.catalog_name,item=item.name)) }}
+			{{ form.url_button('Delete',url_for('catalog.item_delete',catalog=item.catalog_name,item=item.name)) }}
+
 		</p>
 	</div>
 

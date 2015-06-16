@@ -1,0 +1,38 @@
+{% macro label(name,text,class='') %}
+	<label for="name" class="{{ class }}">{{ text }}</label>
+{%- endmacro %}
+ 	
+{% macro input(name,value='',id='', class='',disabled=False) %}
+	<input type='text' name="{{ name }}" value="{{ value }}" id ="{{ id }}" class="{{ class }}" 
+		{% if disabled %} disabled {% endif %}>
+{%- endmacro %}
+
+{% macro textarea(name,value='',id='', class='',disabled=False,rows="4",cols="50") %}
+	<textarea name="{{ name }}" id="{{ id }}" class="{{ class }}" rows="{{ rows }}" cols="{{ cols }}" {% if disabled %} disabled {% endif %}>
+	{{ value }}
+	</textarea>
+		
+{%- endmacro %}
+
+{% macro option(items,selected='',id='', class='') %}
+	<select id="{{ id }}" class="{{ class }}">
+		<option value=""  ></option>
+		{% for item in items %}
+			<option value="{{ item.value }}" {% if item.value==selected %} selected {% endif %} >{{ item.name }}</option>
+		{% endfor %}
+
+	</select>
+{%- endmacro %}
+
+
+{% macro submit(text,class="",option="") %}
+	<button type="submit" class="{{ class }}" {{ option }}>{{ text }}</button>
+{%- endmacro %}
+
+{% macro url_button(text ,url,class="") %}
+	<button type="button" class="{{ class }}" onclick="javascript:window.location='{{ url }}';">{{ text }}</button>
+{%- endmacro %}
+
+{% macro button(text,class="",option="") %}
+	<button type="button" class="{{ class }}" {{ option }}>{{ text }}</button>
+{%- endmacro %}
