@@ -1,21 +1,20 @@
 {% extends "layout/_base.html" %}
-{% import "macros/_form.html" as form %}
 {% import "macros/_html.html" as html %}
-
+{% set title = "Item Edit " %}
 {% block content %}
 
 
 <div class="row">
 	
 	<div class="panel panel-default">
-	<div class="panel-heading">Catalog - Edit</div>
+	<div class="panel-heading">Item - Edit</div>
 		<div class="panel-body">
-			<form action="{{ url_for('catalog.item_edit',catalog=catalog,item=item) }}">
-				<p>{{ form.label('id','ID') }} {{ form.input('name',item.id,disabled=True) }}</p>
-				<p>{{ form.label('name','Name') }} {{ form.input('name',item.name) }}</p>
-				<p>{{ form.label('catalog_id','Catalog') }} {{ form.option(option,item.catalog_id) }}</p>
-				<p>{{ form.label('text','Text') }} {{ form.textarea('text',item.text) }}</p>
-				<p>{{ form.submit('OK') }} {{ form.url_button('Cancel',url_for('catalog.index')) }}</p>
+			<form action="{{ form_action }}" method="POST">
+				{{ form.csrf_token }}{{ form.id() }}
+				<p>{{ form.name.label }} {{ form.name(size=50) }}</p>
+    			<p>{{ form.description.label }} {{ form.description() }}</p>
+				<p>{{ form.catalog_id.label }} {{ form.catalog_id() }}</p>
+				<p>{{ html.submit('OK') }} {{ html.url_button('Cancel',url_for('catalog.index')) }}</p>
 			</form>
 		</div>
 

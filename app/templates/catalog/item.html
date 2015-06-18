@@ -15,8 +15,8 @@
 			{{ item.text }}
 		</div>
 		<p>
-			{{ form.url_button('Edit',url_for('catalog.item_edit',catalog=item.catalog_name,item=item.name)) }}
-			{{ form.url_button('Delete',url_for('catalog.item_delete',catalog=item.catalog_name,item=item.name)) }}
+			{{ form.url_button('Edit',url_for('catalog.item_edit',catalog=catalog_name,item=item.name)) }}
+			{{ form.url_button('Delete',url_for('catalog.item_delete',catalog=catalog_name,item=item.name)) }}
 
 		</p>
 	</div>

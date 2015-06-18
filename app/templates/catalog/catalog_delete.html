@@ -1,5 +1,5 @@
 {% extends "layout/_base.html" %}
-{% import "macros/_form.html" as form %}
+
 {% import "macros/_html.html" as html %}
 
 {% block content %}
@@ -10,10 +10,9 @@
 	<div class="panel panel-default">
 	<div class="panel-heading">Catalog - Delete</div>
 		<div class="panel-body">
-			<form action="{{ url_for('catalog.create') }}">
-				<p>{{ form.label('id','ID') }} {{ form.input('id',catalog.id,disabled=True) }}</p>
-				<p>{{ form.label('id','Name') }} {{ form.input('name',catalog.name) }}</p>
-				<p>{{ form.submit('OK') }} {{ form.url_button('Cancel',url_for('catalog.index')) }}</p>
+			<form action="{{ form_action }}" method="POST">
+				<p>Are you sure to delete catalog "{{ catalog }}"</p>
+				<p>{{ html.submit('OK','confirm') }} {{ html.url_button('Cancel',url_for('catalog.index')) }}</p>
 			</form>
 		</div>
 

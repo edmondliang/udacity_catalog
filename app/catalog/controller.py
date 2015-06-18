@@ -6,35 +6,30 @@ from flask import Blueprint, request, render_template, \
 from app import db
 from flask import current_app as APP
 # Import module model
-import app.catalog.model
+from app.catalog.model import Catalog, Item
+# Import module forms
+from app.catalog.form import CatalogForm, ItemForm
 
 # Define the blueprint:
 catalog = Blueprint('catalog', __name__)
 
-# fake data
-catalog_list = [{'id': 1, 'name': 'catalog1', 'text': "321432"}, {
-    'id': 2, 'name': 'catalog2', 'text': "321432"}]
-catalog1 = {'id': 1, 'name': 'catalog1', 'text': "321432"}
-items_array = [{'id': 1, 'name': 'item1', 'catalog_name': 'catalog1', 'text': '43214321421342314231'}, {
-    'id': 2, 'name': 'item2', 'catalog_name': 'catalog1', 'text': '43214321421342314231'}]
-item1 = {'id': 1, 'name': 'item1', 'catalog_name': 'catalog1',"catalog_id":1,
-         'text': '43214321421342314231'}
-
-items_array2 = [{'id': 1, 'name': '1111', 'catalog_name': 'catalog1', 'text': '43214321421342314231'}, {
-    'id': 2, 'name': '2222', 'catalog_name': 'catalog1', 'text': '43214321421342314231'}]
 
 # Make option list for catalog
 def get_option():
-    items=[]
-    for item in catalog_list:
-        items.append({'value':item['id'],'name':item['name']})
+    items = []
+    for item in db.session.query(Catalog).all():
+        items.append({'value': item.id, 'name': item.name})
     return items
 
 # Set the route and accepted methods
+
+
 @catalog.route('/')
 @catalog.route('/catalog/')
 def index():
-    return render_template('catalog/main_list.html', catalog=catalog_list, items=items_array)
+    catalog_list = db.session.query(Catalog).all()
+    item_list = db.session.query(Item.name.label('name'),Catalog.name.label('catalog_name')).join(Catalog).all()
+    return render_template('catalog/main_list.html', catalog=catalog_list, items=item_list)
     # try:
     #     return render_template('catalog/list.html',catalog=catalog_list)
     # except Exception, e:
@@ -43,42 +38,122 @@ def index():
 
 @catalog.route('/catalog/<catalog>/items')
 def detail(catalog):
-    return render_template('catalog/list.html', catalog=catalog_list, catalog_name='abc catalog', items=items_array2)
+    catalog_list = db.session.query(Catalog).all()
+    item_list = db.session.query(Item.name.label('name'),Catalog.name.label('catalog_name')).join(Catalog).filter(Catalog.name==catalog).all()
+    return render_template('catalog/list.html', catalog=catalog_list, items=item_list,catalog_name=catalog)
 
 
 @catalog.route('/catalog/<catalog>/<item>')
 def item_detail(catalog, item):
-    return render_template('catalog/item.html', item=item1)
+    this_one = db.session.query(Item).join(Catalog).filter(
+        Item.name == item).filter(Catalog.name == catalog).one()
+    return render_template('catalog/item.html', item=this_one,catalog_name=catalog)
 
 
-@catalog.route('/catalog/create')
+@catalog.route('/catalog/create', methods=['GET', 'POST'])
 def create():
-    return render_template('catalog/catalog_create.html')
+    form = CatalogForm(request.form)
+    form_action = url_for('catalog.create')
+    if request.method == 'POST' and form.validate():
+        catalog = Catalog(form.name.data)
+        db.session.add(catalog)
+        db.session.commit()
+        return redirect('/')
+    return render_template('catalog/catalog_create.html', form_action=form_action, form=form)
 
 
-@catalog.route('/catalog/<catalog>/edit')
+@catalog.route('/catalog/<catalog>/edit', methods=['GET', 'POST'])
 def edit(catalog):
-    return render_template('catalog/catalog_edit.html', item=catalog1)
+    this_one = db.session.query(Catalog).filter(
+        Catalog.name == catalog).one()
+    if not this_one:
+        abort(404)
+
+    form_action = url_for('catalog.edit', catalog=catalog)
+
+    if request.method == 'GET':
+        form = CatalogForm(obj=this_one)
+        return render_template('catalog/catalog_edit.html', form_action=form_action, form=form)
+
+    form = CatalogForm(request.form)
+    if request.method == 'POST' and form.validate():
+        form.populate_obj(this_one)
+        db.session.merge(this_one)
+        db.session.commit()
+        return redirect('/')
+    else:
+        redirect(request.endpoint)
 
 
-@catalog.route('/catalog/<catalog>/delete')
+@catalog.route('/catalog/<catalog>/delete', methods=['GET', 'POST'])
 def delete(catalog):
-    return render_template('catalog/catalog_delete.html', catalog=catalog1)
+    this_one = db.session.query(Catalog).filter(
+        Catalog.name == catalog).one()
+    if not this_one:
+        abort(404)
+
+    form_action = url_for('catalog.delete', catalog=catalog)
+    if request.method == 'GET':
+        return render_template('catalog/catalog_delete.html', form_action=form_action, catalog=catalog)
+
+    if request.method == 'POST' and request.form['confirm']:
+        db.session.delete(this_one)
+        db.session.commit()
+        return redirect('/')
+    else:
+        redirect(request.endpoint)
 
 
 # catalog items handling
 
 
-@catalog.route('/catalog/item_create')
+@catalog.route('/catalog/item_create', methods=['GET', 'POST'])
 def item_create():
-    return render_template('catalog/item_create.html',option=get_option())
+    form = ItemForm(request.form)
+    form_action = url_for('catalog.item_create')
+    if request.method == 'POST' and form.validate():
+        item = Item(
+            form.name.data, form.description.data, form.catalog_id.data)
+        db.session.add(item)
+        db.session.commit()
+        return redirect('/')
+    return render_template('catalog/item_create.html', form_action=form_action,form=form)
 
 
-@catalog.route('/catalog/<catalog>/<item>/edit')
+@catalog.route('/catalog/<catalog>/<item>/edit', methods=['GET', 'POST'])
 def item_edit(catalog, item):
-    return render_template('catalog/item_edit.html',option=get_option(),catalog=catalog,item=item1)
+    this_one = db.session.query(Item).join(Catalog).filter(
+        Item.name == item).filter(Catalog.name == catalog).one()
+
+    form_action = url_for('catalog.item_edit', catalog=catalog,item=item)
+
+    if request.method == 'GET':
+        form = ItemForm(obj=this_one)
+        return render_template('catalog/item_edit.html', form_action=form_action, form=form)
+
+    form = ItemForm(request.form)
+    if request.method == 'POST' and form.validate():
+        form.populate_obj(this_one)
+        db.session.merge(this_one)
+        db.session.commit()
+        return redirect('/')
+    else:
+        redirect(request.endpoint)
 
 
-@catalog.route('/catalog/<catalog>/<item>/delete')
+@catalog.route('/catalog/<catalog>/<item>/delete', methods=['GET', 'POST'])
 def item_delete(catalog, item):
-    return render_template('catalog/item_delete.html',catalog=catalog,item=item1)
+    this_one = db.session.query(Item).join(Catalog).filter(
+        Item.name == item).filter(Catalog.name == catalog).one()
+
+    form_action = url_for('catalog.item_delete', catalog=catalog,item=item)
+    if request.method == 'GET':
+        return render_template('catalog/item_delete.html', form_action=form_action, item=item)
+
+    if request.method == 'POST' and request.form['confirm']:
+        db.session.delete(this_one)
+        db.session.commit()
+        return redirect('/')
+    else:
+        redirect(request.endpoint)
+

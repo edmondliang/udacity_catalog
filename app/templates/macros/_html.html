@@ -1,3 +1,15 @@
 {% macro link(name, link='', class='') %}
 	<a href="{{ link }}" class="{{ class }}">{{ name }}</a>
 {%- endmacro %}
+
+{% macro submit(text,name="",class="",option="") %}
+	<button type="submit" name="{{ name }}" value=True class="{{ class }}" {{ option }}>{{ text }}</button>
+{%- endmacro %}
+
+{% macro url_button(text ,url,class="") %}
+	<button type="button" class="{{ class }}" onclick="javascript:window.location='{{ url }}';">{{ text }}</button>
+{%- endmacro %}
+
+{% macro button(text,name="",class="",option="") %}
+	<button type="button" name="{{ name }}" class="{{ class }}" {{ option }}>{{ text }}</button>
+{%- endmacro %}
