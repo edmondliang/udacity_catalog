@@ -2,15 +2,16 @@
 # We will define this inside /app/__init__.py in the next sections.
 from app import db
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import desc
+from sqlalchemy import desc,UniqueConstraint
 # Define model
 
 class Item(db.Model):
     __tablename__ = 'items'
     id= db.Column(db.Integer, primary_key=True)
-    name=db.Column(db.String(50))
+    name=db.Column(db.String(50),unique=True)
     description=db.Column(db.Text())
     catalog_id=db.Column(db.Integer, db.ForeignKey("catalogs.id"),nullable=False)
+    catalog=relationship("Catalog")
     date_created  = db.Column(db.DateTime,  default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,  default=db.func.current_timestamp(),
                                            onupdate=db.func.current_timestamp())
@@ -28,7 +29,7 @@ class Item(db.Model):
 class Catalog(db.Model):
     __tablename__ = 'catalogs'
     id= db.Column(db.Integer, primary_key=True)
-    name=db.Column(db.String(50))
+    name=db.Column(db.String(50),unique=True)
     items = relationship("Item", backref="Catalog")
     date_created  = db.Column(db.DateTime,  default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,  default=db.func.current_timestamp(),
