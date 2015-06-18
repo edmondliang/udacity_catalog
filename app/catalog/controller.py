@@ -1,7 +1,7 @@
 # Import flask dependencies
 from flask import Blueprint, request, render_template, \
     flash, g, session, redirect, url_for, abort
-
+from sqlalchemy import desc
 # Import the database object from the main app module
 from app import db
 from flask import current_app as APP
@@ -28,7 +28,8 @@ def get_option():
 @catalog.route('/catalog/')
 def index():
     catalog_list = db.session.query(Catalog).all()
-    item_list = db.session.query(Item.name.label('name'),Catalog.name.label('catalog_name')).join(Catalog).all()
+    item_list = db.session.query(Item.name.label('name'), Catalog.name.label(
+        'catalog_name')).join(Catalog).order_by(desc(Item.date_modified)).all()
     return render_template('catalog/main_list.html', catalog=catalog_list, items=item_list)
     # try:
     #     return render_template('catalog/list.html',catalog=catalog_list)
@@ -39,15 +40,15 @@ def index():
 @catalog.route('/catalog/<catalog>/items')
 def detail(catalog):
     catalog_list = db.session.query(Catalog).all()
-    item_list = db.session.query(Item.name.label('name'),Catalog.name.label('catalog_name')).join(Catalog).filter(Catalog.name==catalog).all()
-    return render_template('catalog/list.html', catalog=catalog_list, items=item_list,catalog_name=catalog)
+    this_one = db.session.query(Catalog).filter(Catalog.name == catalog).one()
+    return render_template('catalog/list.html', catalog=catalog_list, this_one=this_one)
 
 
 @catalog.route('/catalog/<catalog>/<item>')
 def item_detail(catalog, item):
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
-    return render_template('catalog/item.html', item=this_one,catalog_name=catalog)
+    return render_template('catalog/item.html', item=this_one, catalog_name=catalog)
 
 
 @catalog.route('/catalog/create', methods=['GET', 'POST'])
@@ -117,7 +118,7 @@ def item_create():
         db.session.add(item)
         db.session.commit()
         return redirect('/')
-    return render_template('catalog/item_create.html', form_action=form_action,form=form)
+    return render_template('catalog/item_create.html', form_action=form_action, form=form)
 
 
 @catalog.route('/catalog/<catalog>/<item>/edit', methods=['GET', 'POST'])
@@ -125,7 +126,7 @@ def item_edit(catalog, item):
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
 
-    form_action = url_for('catalog.item_edit', catalog=catalog,item=item)
+    form_action = url_for('catalog.item_edit', catalog=catalog, item=item)
 
     if request.method == 'GET':
         form = ItemForm(obj=this_one)
@@ -146,7 +147,7 @@ def item_delete(catalog, item):
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
 
-    form_action = url_for('catalog.item_delete', catalog=catalog,item=item)
+    form_action = url_for('catalog.item_delete', catalog=catalog, item=item)
     if request.method == 'GET':
         return render_template('catalog/item_delete.html', form_action=form_action, item=item)
 
@@ -156,4 +157,3 @@ def item_delete(catalog, item):
         return redirect('/')
     else:
         redirect(request.endpoint)
-

@@ -1,6 +1,6 @@
 {% extends "layout/_base.html" %}
+{% import "macros/_html.html" as html %}
 
-{% set title = "Catalog List" %}
 
 {% block content %}
 
@@ -10,7 +10,21 @@
 		{% include "catalog/_left.html" %}
 	</div>
 	<div class="col-md-9">
-		{% include "catalog/_right.html" %}
+		
+		<span> {{ this_one.name }} List</span>
+
+		{% if not is_main %}
+			{{ html.link("Edit",url_for('catalog.edit',catalog=this_one.name)  ) }}
+			{{ html.link("Delete",url_for('catalog.delete',catalog=this_one.name)) }}
+
+		{% endif %}
+		<ul>
+		{% for item in this_one.items %}
+			<li>{{ html.link(item.name,url_for('catalog.item_detail',catalog=this_one.name,item=item.name)  ) }}</li>
+		{% endfor%}
+		</ul>
+
+		{{ html.link("Create",url_for('catalog.item_create')  ) }}
 	</div>
 </div>
 
