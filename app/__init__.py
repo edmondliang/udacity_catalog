@@ -2,7 +2,7 @@ from flask import Flask, render_template
 
 # Import SQLAlchemy
 from flask.ext.sqlalchemy import SQLAlchemy
-
+import json
 # Define the WSGI application object
 app = Flask(__name__)
 
@@ -12,6 +12,9 @@ app.config.from_object('config')
 # Define the database object which is imported
 # by modules and controllers
 db = SQLAlchemy(app)
+
+with open('client_secret.json') as data_file:
+    google_secret = json.load(data_file)
 
 # Sample HTTP error handling
 @app.errorhandler(404)
