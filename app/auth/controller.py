@@ -1,24 +1,34 @@
 # Import flask dependencies
 from flask import Blueprint, request, render_template, \
     flash, g, session, redirect, url_for, make_response
+from oauth2client.client import OAuth2WebServerFlow, Credentials
 import httplib2
-from oauth2client.client import OAuth2WebServerFlow, Credentials, \
-    FlowExchangeError
-
 import json
+import random
 import requests
+import string
+import urllib
 from pprint import pprint
 
+
+from flask import session as login_session
 # Import the database object from the main app module
-from app import db,google_secret
+from app import db, google_secret
+from app.auth.model import User
 
+flow = OAuth2WebServerFlow(client_id=google_secret['client_id'],
+                           client_secret=google_secret['client_secret'],
+                           scope='openid email',
+                           redirect_uri='http://127.0.0.1:5000/auth/oauth2callback')
 
-
-flow = OAuth2WebServerFlow(client_id=google_secret[u'web'][u'client_id'],
-    client_secret = google_secret[u'web'][u'client_secret'],
-    scope = u'https://www.googleapis.com/auth/userinfo.profile',
-    redirect_uri = u'http://127.0.0.1:5000/auth/oauth2callback')
-
+google_oauth = {
+    'oauth_uri': 'https://accounts.google.com/o/oauth2/auth',
+    'redirect_uri': 'http://127.0.0.1:5000/auth/oauth2callback',
+    'scope': 'openid email',
+    'exchange_uri': 'https://www.googleapis.com/oauth2/v3/token',
+    'userinfo_uri': 'https://www.googleapis.com/oauth2/v2/userinfo',
+    'validate_uri': 'https://www.googleapis.com/oauth2/v1/tokeninfo'
+}
 
 
 # Define the blueprint: 'auth', set its url prefix: app.url/auth
@@ -26,25 +36,132 @@ auth = Blueprint('auth', __name__, url_prefix="/auth")
 # Set the route and accepted methods
 
 
+def make_state():
+    login_session['state'] = ''.join(
+        random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+    return login_session['state']
+
+
+def delete_state():
+    del login_session['state']
+
+
+def get_user_info(user_id):
+    user = db.session.query(User).filter(User.id == user_id).one()
+    return user
+
+
+def get_user_id(email):
+    user = db.session.query(User).filter(User.email == email).one()
+    return user.id
+
+
+def create_user():
+    user = User(name=login_session['username'], picture=login_session[
+                'picture'], email=login_session['email'])
+    db.session.add(user)
+    db.session.commit()
+    return get_user_id(login_session['email'])
+
+def get_current_user():
+    if login_session['user_id'] is not None:
+        return get_user_id(login_session['user_id'])
+    return None
+
 @auth.route('/login')
 def login():
-    auth_uri = flow.step1_get_authorize_url()
+    login_session['origin']=request.referrer
+    auth_params = {
+        'response_type': 'code',
+        'client_id': google_secret['client_id'],
+        'redirect_uri': google_oauth['redirect_uri'],
+        'scope': google_oauth['scope'],
+        'state': make_state()}
+    auth_uri = google_oauth['oauth_uri']+'?' + urllib.urlencode(auth_params)
     return redirect(auth_uri)
 
 
-@auth.route('/oauth2callback')
+@auth.route('/oauth2callback', methods=['POST', 'GET'])
 def callback():
-    print request.args.get('code')
-    cred = flow.step2_exchange(request.args.get('code'), httplib2.Http())
-    access_token = cred.access_token
+    # check data
+    error = request.args.get('error')
+    code = request.args.get('code').decode('utf-8')
+    if (error is not None) or (code is None):
+        return redirect('/')
 
-    userinfo_url = "https://www.googleapis.com/oauth2/v2/userinfo"
-    params = {'access_token': cred.access_token, 'alt': 'json'}
-    answer = requests.get(userinfo_url, params=params)
-    data = answer.json()
-    return data['name']
+    # check cross side attack
+    if request.args.get('state') != login_session['state']:
+        response = make_response(
+            json.dumps('Unauthorized access.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+     # Upgrade the authorization code into a credentials object
+    try:
+        credentials = flow.step2_exchange(code)
+        access_token = credentials.access_token
+    except:
+        response = make_response(
+            json.dumps('Failed to upgrade the authorization code.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # check access token is valid
+    params = {'access_token': access_token}
+    response = requests.get(google_oauth['validate_uri'], params=params)
+    data = response.json()
+
+    # 1.check error
+    if data.get('error') is not None:
+        response = make_response(
+            json.dumps('Failed to validate access token.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # 2.check client id
+    if data['issued_to'] != google_secret['client_id']:
+        response = make_response(
+            json.dumps("Token's client ID does not match app's."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # 3.check user id
+    gplus_id = credentials.id_token['sub']
+    if data['user_id'] != gplus_id:
+        response = make_response(
+            json.dumps("Token's user ID doesn't match given user ID."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # get user info
+    params = {'access_token': access_token, 'alt': 'json'}
+    answer = requests.get(google_oauth['userinfo_uri'], params=params)
+    userinfo = answer.json()
+
+    login_session['access_token'] = access_token
+    login_session['gplus_id'] = gplus_id
+    login_session['username'] = userinfo['name']
+    login_session['picture'] = userinfo['picture']
+    login_session['email'] = userinfo['email']
+
+    # see if user exists, if it doesn't make a new one
+    user_id = get_user_id(login_session['email'])
+    if not user_id:
+        user_id = create_user()
+    login_session['user_id'] = user_id
+    pprint(userinfo)
+    pprint(login_session)
+    return redirect(login_session['origin'])
 
 
 @auth.route('/logout')
-def show():
-    return "Logout!"
+def logout():
+    login_session['origin']=request.referrer
+    del login_session['access_token']
+    del login_session['gplus_id']
+    del login_session['username']
+    del login_session['picture']
+    del login_session['email']
+    del login_session['state']
+    del login_session['user_id']
+    return redirect(login_session['origin'])

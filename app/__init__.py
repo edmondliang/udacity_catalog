@@ -14,7 +14,8 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 
 with open('client_secret.json') as data_file:
-    google_secret = json.load(data_file)
+    data = json.load(data_file)
+    google_secret=data['web']
 
 # Sample HTTP error handling
 @app.errorhandler(404)
@@ -22,12 +23,13 @@ def not_found(error):
     return render_template('404.html'), 404
 
 # Import a module / component using its blueprint handler variable (mod_auth)
-from app.catalog.controller import catalog
 from app.auth.controller import auth
+from app.catalog.controller import catalog
 
 # Register blueprint(s)
-app.register_blueprint(catalog)
 app.register_blueprint(auth)
+app.register_blueprint(catalog)
+
 # app.register_blueprint(xyz_module)
 # ..
 

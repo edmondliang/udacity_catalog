@@ -20,6 +20,11 @@
     <div id="header" class="containter">
         {% block header %}
             <h1>{{ html.link("Catalog",url_for("catalog.index")) }}</h1>
+            {% if session['username'] %}
+                {{ session['username']}}<a href="{{ url_for('auth.logout') }}">(Logout)</a> 
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a> 
+            {% endif %}
         {% endblock %}
     </div>
     <div id="content" class="containter">

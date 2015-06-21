@@ -10,6 +10,7 @@ from app.catalog.model import Catalog, Item
 # Import module forms
 from app.catalog.form import CatalogForm, ItemForm
 
+from app.auth import controller as auth
 # Define the blueprint:
 catalog = Blueprint('catalog', __name__)
 
