@@ -1,9 +1,11 @@
 # Import flask dependencies
 from flask import Blueprint, request, render_template, \
-    flash, g, session, redirect, url_for, abort
+    flash, g, session, redirect, url_for, abort,make_response
 from sqlalchemy import desc
+import json
 # Import the database object from the main app module
 from app import db
+from flask import session as login_session
 from flask import current_app as APP
 # Import module model
 from app.catalog.model import Catalog, Item
@@ -54,10 +56,13 @@ def item_detail(catalog, item):
 
 @catalog.route('/catalog/create', methods=['GET', 'POST'])
 def create():
+    user_id = login_session.get('user_id')
+    if user_id is None:
+        return redirect('/')
     form = CatalogForm(request.form)
     form_action = url_for('catalog.create')
     if request.method == 'POST' and form.validate():
-        catalog = Catalog(form.name.data)
+        catalog = Catalog(name=form.name.data, user_id=user_id)
         db.session.add(catalog)
         db.session.commit()
         return redirect('/')
@@ -66,10 +71,16 @@ def create():
 
 @catalog.route('/catalog/<catalog>/edit', methods=['GET', 'POST'])
 def edit(catalog):
+    user_id = login_session.get('user_id')
+    if user_id is None:
+        return redirect('catalog.detail', catalog=catalog)
     this_one = db.session.query(Catalog).filter(
         Catalog.name == catalog).one()
     if not this_one:
         abort(404)
+
+    if this_one.user_id != user_id:
+        abort(401)
 
     form_action = url_for('catalog.edit', catalog=catalog)
 
@@ -89,10 +100,25 @@ def edit(catalog):
 
 @catalog.route('/catalog/<catalog>/delete', methods=['GET', 'POST'])
 def delete(catalog):
+    user_id = login_session.get('user_id')
+    if user_id is None:
+        return redirect('catalog.detail', catalog=catalog)
     this_one = db.session.query(Catalog).filter(
         Catalog.name == catalog).one()
     if not this_one:
         abort(404)
+
+    if this_one.user_id != user_id:
+        abort(401)
+
+    other_items_count = db.session.query(Item).join(Catalog).filter(
+        Catalog.name == catalog).filter(Item.user_id != user_id).count()
+
+    if other_items_count > 0 :
+        response = make_response(
+            json.dumps('Forbidden to delete this catalog. Because there are some items created by other user included.'), 403)
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
     form_action = url_for('catalog.delete', catalog=catalog)
     if request.method == 'GET':
@@ -111,11 +137,15 @@ def delete(catalog):
 
 @catalog.route('/catalog/item_create', methods=['GET', 'POST'])
 def item_create():
+    user_id = login_session.get('user_id')
+    if user_id is None:
+        return redirect('catalog.detail', catalog=catalog)
+
     form = ItemForm(request.form)
     form_action = url_for('catalog.item_create')
     if request.method == 'POST' and form.validate():
-        item = Item(
-            form.name.data, form.description.data, form.catalog_id.data)
+        item = Item(name=form.name.data, description=form.description.data,
+                    catalog_id=form.catalog_id.data, user_id=user_id)
         db.session.add(item)
         db.session.commit()
         return redirect('/')
@@ -124,8 +154,18 @@ def item_create():
 
 @catalog.route('/catalog/<catalog>/<item>/edit', methods=['GET', 'POST'])
 def item_edit(catalog, item):
+    user_id = login_session.get('user_id')
+    if user_id is None:
+        return redirect('catalog.item_detail', catalog=catalog, item=item)
+
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
+
+    if not this_one:
+        abort(404)
+
+    if this_one.user_id != user_id:
+        abort(401)
 
     form_action = url_for('catalog.item_edit', catalog=catalog, item=item)
 
@@ -145,8 +185,18 @@ def item_edit(catalog, item):
 
 @catalog.route('/catalog/<catalog>/<item>/delete', methods=['GET', 'POST'])
 def item_delete(catalog, item):
+    user_id = login_session.get('user_id')
+    if user_id is None:
+        return redirect('catalog.item_detail', catalog=catalog, item=item)
+
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
+
+    if not this_one:
+        abort(404)
+
+    if this_one.user_id != user_id:
+        abort(401)
 
     form_action = url_for('catalog.item_delete', catalog=catalog, item=item)
     if request.method == 'GET':

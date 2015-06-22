@@ -47,13 +47,17 @@ def delete_state():
 
 
 def get_user_info(user_id):
-    user = db.session.query(User).filter(User.id == user_id).one()
+    user = db.session.query(User).filter(User.id == user_id).first()
     return user
 
 
 def get_user_id(email):
-    user = db.session.query(User).filter(User.email == email).one()
-    return user.id
+    user = db.session.query(User).filter(User.email == email).first()
+    pprint(user)
+    if user is not None:
+        return user.id
+    else:
+        return None
 
 
 def create_user():

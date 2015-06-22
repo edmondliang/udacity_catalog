@@ -2,6 +2,7 @@ from flask import Flask, render_template
 
 # Import SQLAlchemy
 from flask.ext.sqlalchemy import SQLAlchemy
+
 import json
 # Define the WSGI application object
 app = Flask(__name__)
@@ -15,7 +16,8 @@ db = SQLAlchemy(app)
 
 with open('client_secret.json') as data_file:
     data = json.load(data_file)
-    google_secret=data['web']
+    google_secret = data.get('web')
+
 
 # Sample HTTP error handling
 @app.errorhandler(404)
