@@ -24,6 +24,13 @@ class Item(db.Model):
     def __repr__(self):
         return '<Item %s,%s,%s>' % (self.id, self.name, self.catalog_id)
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description':self.description
+        }
 
 class Catalog(db.Model):
     __tablename__ = 'catalogs'
@@ -39,3 +46,11 @@ class Catalog(db.Model):
 
     def __repr__(self):
         return '<Catalog %s,%s,%s,%s>' % (self.id, self.name, self.date_created, self.date_modified)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id, 
+            'name': self.name,
+            'items': [i.serialize for i in self.items]
+        }
