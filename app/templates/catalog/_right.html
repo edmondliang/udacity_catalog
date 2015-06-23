@@ -1,15 +1,21 @@
 {% import "macros/_html.html" as html %}
-<span>{{ catalog_name }}</span>
+<div class=" panel panel-default">
+
+<div class="panel-heading">
+	{{ catalog_name }}
+	<a href="{{url_for('catalog.item_create')}}" class="btn btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create Item</a>
+</div>
 
 {% if not is_main %}
 	{{ html.link("Edit",url_for('catalog.edit',catalog=catalog_name)  ) }}
 	{{ html.link("Delete",url_for('catalog.delete',catalog=catalog_name)) }}
-
 {% endif %}
-<ul>
+<ul class="nav nav-sidebar">
 {% for item in items %}
 	<li>{{ html.link(item.name,url_for('catalog.item_detail',catalog=item.catalog_name,item=item.name)  ) }}</li>
 {% endfor%}
 </ul>
 
-{{ html.link("Create",url_for('catalog.item_create')  ) }}
+
+
+</div>

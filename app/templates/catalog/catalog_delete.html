@@ -5,14 +5,16 @@
 {% block content %}
 
 
-<div class="row">
+
 	
 	<div class="panel panel-default">
 	<div class="panel-heading">Catalog - Delete</div>
 		<div class="panel-body">
 			<form action="{{ form_action }}" method="POST">
+				{{ form.csrf_token }}
 				<p>Are you sure to delete catalog "{{ catalog }}"</p>
-				<p>{{ html.submit('OK','confirm') }} {{ html.url_button('Cancel',url_for('catalog.index')) }}</p>
+				<hr/>
+				<p>{{ html.submit('OK','confirm',class="btn btn-default") }} {{ html.url_button('Cancel',url_for('catalog.index'),class="btn btn-default") }}</p>
 			</form>
 		</div>
 
@@ -20,7 +22,7 @@
 
 
 
-</div>
+
 
 
 {% endblock %}

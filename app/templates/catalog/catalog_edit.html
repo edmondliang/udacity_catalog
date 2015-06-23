@@ -8,12 +8,27 @@
 	<div class="panel panel-default">
 	<div class="panel-heading">Catalog - Edit</div>
 		<div class="panel-body">
-			<form action="{{ form_action }}" method='POST'>
-				{{ form.csrf_token }}
-				{{ form.id }}
-    			{{ form.name.label }} {{ form.name(size=50) }}
-				<p>{{ html.submit('OK') }} {{ html.url_button('Cancel',url_for('catalog.index')) }}</p>
+			<form class="form-horizontal" action="{{ form_action }}" method="POST">
+				{{ form.csrf_token }}{{ form.id }}
+			  <div class="control-group">
+			    <label class="control-label" for="name">Name</label>
+			    <div class="controls">
+			      {{ form.name(size=50,class_="form-control") }}
+
+			    </div>
+			  </div>
+
+
+			  <hr/>
+			  <div class="control-group">
+
+			      {{ html.submit(text='OK',class='btn btn-default') }}
+				 {{ html.url_button(text='Cancel',url=url_for('catalog.detail',catalog=form.name.data), class='btn btn-default') }}
+			
+			  </div>
+
 			</form>
+
 		</div>
 
 	</div>

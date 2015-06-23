@@ -7,25 +7,19 @@
 {% block content %}
 
 
-<div class="row">
 	
 	<div class="panel panel-default">
-	<div class="panel-heading">{{ item.name }}</div>
+	<div class="panel-heading"><a href="{{ url_for('catalog.detail',catalog=catalog_name) }}">{{ item.name }} </a></div>
 		<div class="panel-body">
-			{{ item.text }}
+			{{ item.description }}
 		</div>
+		<hr/>
 		<p>
-			{{ html.url_button('Edit',url_for('catalog.item_edit',catalog=catalog_name,item=item.name)) }}
-			{{ html.url_button('Delete',url_for('catalog.item_delete',catalog=catalog_name,item=item.name)) }}
+			{{ html.url_button('Edit',url_for('catalog.item_edit',catalog=catalog_name,item=item.name),class="btn btn-default") }}
+			{{ html.url_button('Delete',url_for('catalog.item_delete',catalog=catalog_name,item=item.name),class="btn btn-default") }}
 
 		</p>
 	</div>
-
-
-
-</div>
-
-
 
 
 

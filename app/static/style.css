@@ -1,5 +1,31 @@
 
+h1, .h1,
+h2, .h2,
+h3, .h3,
+h4, .h4,
+h5, .h5,
+h6, .h6 {
+  margin-top: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  color: #333;
+}
 
-.container {
-	width: 970px;
+a{
+	color:black;
+}
+
+.container-fixed {
+  margin: 0 auto;
+  max-width: 960px;
+}
+
+.highlight{
+	color:gray;
+	font-weight: bold;
+}
+
+#header{
+	/*background-color: #4477cc;*/
+
 }
