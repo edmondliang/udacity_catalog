@@ -22,26 +22,27 @@ from functools import wraps
 catalog = Blueprint('catalog', __name__)
 
 
-# Define accepted file formats
 def allowed_image_file(filename):
+    """ Define accepted file formats """
     ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-# Upload process
-
 
 def upload_file(file):
+    """ Upload process
+        arguments:
+        file= request.files['file_field']
+    """
     if file and allowed_image_file(file.filename):
         pprint('end checking.')
         filename = secure_filename(file.filename)
         file.save(os.path.join(APP.config['UPLOAD_FOLDER'], filename))
         return url_for('static', filename='upload/'+filename)
 
-# Home page
-
 
 def login_require(f):
+    """ Login decorator for login process  """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         user_id = login_session.get('user_id')
@@ -50,41 +51,52 @@ def login_require(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 @catalog.route('/')
 @catalog.route('/catalog/')
 def index():
+    """ Index page for website entrance """
+
     catalog_list = db.session.query(Catalog).all()
     item_list = db.session.query(Item.name.label('name'), Catalog.name.label(
         'catalog_name')).join(Catalog).order_by(desc(Item.date_modified)).all()
     return render_template('catalog/main_list.html',
                            catalog=catalog_list, items=item_list)
 
-# Catalog page
-
 
 @catalog.route('/catalog/<string:catalog>/items')
 def detail(catalog):
+    """ Catalog page for managing catalog infomation
+        arguments:
+        catalog :  catalog name
+
+    """
+
     catalog_list = db.session.query(Catalog).all()
     this_one = db.session.query(Catalog).filter(Catalog.name == catalog).one()
     return render_template('catalog/list.html',
                            catalog=catalog_list, this_one=this_one)
 
-# Item page
-
 
 @catalog.route('/catalog/<string:catalog>/<string:item>')
 def item_detail(catalog, item):
+    """ Items in Catalog page for managing item infomation
+        arguments:
+        catalog :  catalog name
+        item    :  item name
+
+    """
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
     return render_template('catalog/item.html',
                            item=this_one, catalog_name=catalog)
 
-# Create catalog
-
 
 @catalog.route('/catalog/create', methods=['GET', 'POST'])
 @login_require
 def create():
+    """ For creating catalog
+    """
     user_id = login_session.get('user_id')
     form = CatalogForm(request.form)
     form_action = url_for('catalog.create')
@@ -96,12 +108,14 @@ def create():
     return render_template('catalog/catalog_create.html',
                            form_action=form_action, form=form)
 
-# Modify catalog
-
 
 @catalog.route('/catalog/<string:catalog>/edit', methods=['GET', 'POST'])
 @login_require
 def edit(catalog):
+    """ For modifying catalog
+        arguments:
+        catalog : catalog name
+    """
     user_id = login_session.get('user_id')
     this_one = db.session.query(Catalog).filter(
         Catalog.name == catalog).one()
@@ -127,12 +141,14 @@ def edit(catalog):
     else:
         return redirect(request.path)
 
-# Delete catalog
-
 
 @catalog.route('/catalog/<string:catalog>/delete', methods=['GET', 'POST'])
 @login_require
 def delete(catalog):
+    """ For deleting catalog
+        arguments:
+        catalog : catalog name
+    """
     user_id = login_session.get('user_id')
     this_one = db.session.query(Catalog).filter(
         Catalog.name == catalog).one()
@@ -169,10 +185,12 @@ def delete(catalog):
         return redirect(request.path)
 
 
-# Create item
 @catalog.route('/catalog/item_create', methods=['GET', 'POST'])
 @login_require
 def item_create():
+    """ For creating item
+    """
+
     user_id = login_session.get('user_id')
     form = ItemForm(request.form)
     form_action = url_for('catalog.item_create')
@@ -195,9 +213,15 @@ def item_create():
 # Modify item
 
 
-@catalog.route('/catalog/<string:catalog>/<string:item>/edit', methods=['GET', 'POST'])
+@catalog.route('/catalog/<string:catalog>/<string:item>/edit',
+               methods=['GET', 'POST'])
 @login_require
 def item_edit(catalog, item):
+    """ For modifying item
+        arguments:
+        catalog : catalog name
+        item    : item name
+    """
     user_id = login_session.get('user_id')
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
@@ -226,12 +250,16 @@ def item_edit(catalog, item):
     else:
         return redirect(request.path)
 
-# Delete item
 
-
-@catalog.route('/catalog/<string:catalog>/<string:item>/delete', methods=['GET', 'POST'])
+@catalog.route('/catalog/<string:catalog>/<string:item>/delete',
+               methods=['GET', 'POST'])
 @login_require
 def item_delete(catalog, item):
+    """ for deleting item
+        arguments:
+        catalog : catalog name
+        item    : item name
+    """
     user_id = login_session.get('user_id')
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
@@ -255,19 +283,19 @@ def item_delete(catalog, item):
     else:
         return redirect(request.path)
 
-# JSON endpoint
-
 
 @catalog.route('/catalog/json')
 def json():
+    """ For providing JSON data to user
+    """
     json_list = [i.serialize for i in db.session.query(Catalog).all()]
     return jsonify(json_list)
-
-# RSS endpoint
 
 
 @catalog.route('/catalog/rss')
 def rss():
+    """ For providing RSS data to user
+    """
     feed = AtomFeed('Recent Articles',
                     feed_url=request.url, url=request.url_root)
     items = db.session.query(Item.name,

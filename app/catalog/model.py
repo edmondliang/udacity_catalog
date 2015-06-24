@@ -6,6 +6,9 @@ from sqlalchemy import desc, UniqueConstraint
 
 
 class Item(db.Model):
+
+    """ The Item model is for storing item information
+    """
     __tablename__ = 'items'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
@@ -23,12 +26,16 @@ class Item(db.Model):
                               onupdate=db.func.current_timestamp())
 
     def __repr__(self):
+        """ Provide information when access instance
+        """
         return '<Item %s,%s,%s,%s>' % (self.id, self.name,
                                        self.filename, self.catalog_id)
 
-    # for making JSON 
+    # for making JSON
     @property
     def serialize(self):
+        """ Provide data for producing JSON format
+        """
         return {
             'id': self.id,
             'name': self.name,
@@ -37,6 +44,9 @@ class Item(db.Model):
 
 
 class Catalog(db.Model):
+
+    """The Catalog model is for storing catalog information
+    """
     __tablename__ = 'catalogs'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
@@ -50,12 +60,17 @@ class Catalog(db.Model):
                               onupdate=db.func.current_timestamp())
 
     def __repr__(self):
+        """ Provide information when access instance
+        """
         return '<Catalog %s,%s,%s,%s>' % (self.id, self.name,
                                           self.date_created,
                                           self.date_modified)
     # for making JSON
+
     @property
     def serialize(self):
+        """ Provide data for producing JSON format
+        """
         return {
             'id': self.id,
             'name': self.name,

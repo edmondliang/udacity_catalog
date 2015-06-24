@@ -8,12 +8,20 @@ from model import Catalog, Item
 
 
 class CatalogForm(Form):
+
+    """ CatalogForm is for producing related fields in html
+         and providing validation in submission
+    """
     name = TextField(
         'Name', [Required(message='Please input the Catalog Name!')])
     id = HiddenField('ID')
 
 
 class ItemForm(Form):
+
+    """ ItemForm is for producing related fields in html
+         and providing validation in submission
+    """
     id = HiddenField('ID')
     name = TextField('Name', [Required(message='Please input the Item Name!')])
     description = TextAreaField('Description')
@@ -28,5 +36,8 @@ class ItemForm(Form):
         super(ItemForm, self).__init__(formdata, obj, prefix, **kwargs)
         self.set_choices()
 
+
 class DeleteForm(Form):
+    """ DeleteForm is for providing validation in submission
+    """
     confirm = BooleanField('confirm')

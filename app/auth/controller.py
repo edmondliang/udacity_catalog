@@ -34,32 +34,32 @@ google_oauth = {
 # Define the blueprint: 'auth', set its url prefix: app.url/auth
 auth = Blueprint('auth', __name__, url_prefix="/auth")
 
-# Generate a random string for anti csrf
-
 
 def make_state():
+    """ Generate a random string for anti csrf
+    """
     login_session['state'] = ''.join(
         random.choice(string.ascii_uppercase
                       + string.digits) for x in xrange(32))
     return login_session['state']
 
-# Reset the randome string for anti csrf
-
 
 def delete_state():
+    """ Reset the randome string for anti csrf
+    """
     del login_session['state']
-
-# Get user info by user id
 
 
 def get_user_info(user_id):
+    """ Get user info by user id
+    """
     user = db.session.query(User).filter(User.id == user_id).first()
     return user
 
-# Get user id by email
-
 
 def get_user_id(email):
+    """ Get user's id by email
+    """
     user = db.session.query(User).filter(User.email == email).first()
     pprint(user)
     if user is not None:
@@ -67,29 +67,29 @@ def get_user_id(email):
     else:
         return None
 
-# Create user
-
 
 def create_user():
+    """ For Creating user
+    """
     user = User(name=login_session['username'], picture=login_session[
                 'picture'], email=login_session['email'])
     db.session.add(user)
     db.session.commit()
     return get_user_id(login_session['email'])
 
-# Get current user id
-
 
 def get_current_user():
+    """ Get current user id
+    """
     if login_session['user_id'] is not None:
         return get_user_id(login_session['user_id'])
     return None
 
-# User Login
-
 
 @auth.route('/login')
 def login():
+    """ The endpoint for user to login
+    """
     login_session['origin'] = request.referrer
     auth_params = {
         'response_type': 'code',
@@ -100,11 +100,11 @@ def login():
     auth_uri = google_oauth['oauth_uri']+'?' + urllib.urlencode(auth_params)
     return redirect(auth_uri)
 
-# Google oauth login call back
-
 
 @auth.route('/oauth2callback', methods=['POST', 'GET'])
 def callback():
+    """ For Google oauth login to call back and to process login process
+    """
     # check data
     error = request.args.get('error')
     code = request.args.get('code').decode('utf-8')
@@ -175,11 +175,11 @@ def callback():
     pprint(login_session)
     return redirect(login_session['origin'])
 
-# User logout
-
 
 @auth.route('/logout')
 def logout():
+    """ For user to log out
+    """
     login_session['origin'] = request.referrer
     del login_session['access_token']
     del login_session['gplus_id']

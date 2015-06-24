@@ -6,6 +6,9 @@ from sqlalchemy import desc, UniqueConstraint
 
 
 class User(db.Model):
+
+    """ The User Model is for storing user information
+    """
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
@@ -18,6 +21,8 @@ class User(db.Model):
                               onupdate=db.func.current_timestamp())
 
     def __repr__(self):
+        """ Provide information when access instance
+        """
         return '<Catalog %s,%s,%s,%s,%s,%s>' % (self.id,
                                                 self.name,
                                                 self.email,
