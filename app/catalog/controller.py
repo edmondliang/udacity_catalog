@@ -16,6 +16,7 @@ from app.catalog.form import CatalogForm, ItemForm, DeleteForm
 
 from app.auth import controller as auth
 from pprint import pprint
+from functools import wraps
 
 # Define the blueprint:
 catalog = Blueprint('catalog', __name__)
@@ -52,7 +53,7 @@ def index():
 # Catalog page
 
 
-@catalog.route('/catalog/<catalog>/items')
+@catalog.route('/catalog/<string:catalog>/items')
 def detail(catalog):
     catalog_list = db.session.query(Catalog).all()
     this_one = db.session.query(Catalog).filter(Catalog.name == catalog).one()
@@ -62,7 +63,7 @@ def detail(catalog):
 # Item page
 
 
-@catalog.route('/catalog/<catalog>/<item>')
+@catalog.route('/catalog/<string:catalog>/<string:item>')
 def item_detail(catalog, item):
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
@@ -90,7 +91,7 @@ def create():
 # Modify catalog
 
 
-@catalog.route('/catalog/<catalog>/edit', methods=['GET', 'POST'])
+@catalog.route('/catalog/<string:catalog>/edit', methods=['GET', 'POST'])
 def edit(catalog):
     user_id = login_session.get('user_id')
     if user_id is None:
@@ -122,7 +123,7 @@ def edit(catalog):
 # Delete catalog
 
 
-@catalog.route('/catalog/<catalog>/delete', methods=['GET', 'POST'])
+@catalog.route('/catalog/<string:catalog>/delete', methods=['GET', 'POST'])
 def delete(catalog):
     user_id = login_session.get('user_id')
     if user_id is None:
@@ -190,7 +191,7 @@ def item_create():
 # Modify item
 
 
-@catalog.route('/catalog/<catalog>/<item>/edit', methods=['GET', 'POST'])
+@catalog.route('/catalog/<string:catalog>/<string:item>/edit', methods=['GET', 'POST'])
 def item_edit(catalog, item):
     user_id = login_session.get('user_id')
     if user_id is None:
@@ -226,7 +227,7 @@ def item_edit(catalog, item):
 # Delete item
 
 
-@catalog.route('/catalog/<catalog>/<item>/delete', methods=['GET', 'POST'])
+@catalog.route('/catalog/<string:catalog>/<string:item>/delete', methods=['GET', 'POST'])
 def item_delete(catalog, item):
     user_id = login_session.get('user_id')
     if user_id is None:
