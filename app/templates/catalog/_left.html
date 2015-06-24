@@ -1,7 +1,9 @@
 {% import "macros/_html.html" as html %}
 <div class="panel panel-default">
 <div class="panel-heading">Catalog List
+	{% if session.get('user_id') %}
 	<a href="{{url_for('catalog.create')}}" class="btn btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</a>
+	{% endif %}
 </div>
 <ul class="nav nav-sidebar">
 	

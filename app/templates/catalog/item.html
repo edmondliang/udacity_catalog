@@ -11,14 +11,22 @@
 	<div class="panel panel-default">
 	<div class="panel-heading"><a href="{{ url_for('catalog.detail',catalog=catalog_name) }}">{{ item.name }} </a></div>
 		<div class="panel-body">
+			{% if item.filename %}
+				<img src="{{ item.filename }}" class="img-responsive" alt="Responsive image">
+			{% endif %}
 			{{ item.description }}
 		</div>
-		<hr/>
-		<p>
-			{{ html.url_button('Edit',url_for('catalog.item_edit',catalog=catalog_name,item=item.name),class="btn btn-default") }}
-			{{ html.url_button('Delete',url_for('catalog.item_delete',catalog=catalog_name,item=item.name),class="btn btn-default") }}
+		
+		{% if session.get('user_id') %}
+			{% if session.get('user_id') == item.user_id %}
+			<hr/>
+			<p>
+				{{ html.url_button('Edit',url_for('catalog.item_edit',catalog=catalog_name,item=item.name),class="btn btn-default") }}
+				{{ html.url_button('Delete',url_for('catalog.item_delete',catalog=catalog_name,item=item.name),class="btn btn-default") }}
 
-		</p>
+			</p>
+			{% endif %}
+		{% endif %}
 	</div>
 
 

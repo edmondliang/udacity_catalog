@@ -8,7 +8,7 @@
 	<div class="panel panel-default">
 	<div class="panel-heading">Item - create </div>
 		<div class="panel-body">
-			<form class="form-horizontal" action="{{ form_action }}" method="POST">
+			<form class="form-horizontal" action="{{ form_action }}" method="POST" enctype="multipart/form-data">
 				{{ form.csrf_token }}
 			  <div class="control-group">
 			    <label class="control-label" for="name">Name</label>
@@ -30,6 +30,14 @@
 			    <label class="control-label" for="catalog_id">Catalog</label>
 			    <div class="controls">
 			      {{ form.catalog_id(class_="form-control") }}
+
+			    </div>
+			  </div>
+
+			  <div class="control-group">
+			    <label class="control-label" for="image_file">Image</label>
+			    <div class="controls">
+			      {{ form.image_file(class_="form-control") }}
 
 			    </div>
 			  </div>

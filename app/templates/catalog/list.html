@@ -13,11 +13,13 @@
 		<div class=" panel panel-default">
 
 			<div class="panel-heading">Catalog [{{ this_one.name }}] 
-				{% if not is_main %}
-					<a href="{{url_for('catalog.edit',catalog=this_one.name)}}" class="btn btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit</a>
-					<a href="{{url_for('catalog.delete',catalog=this_one.name)}}" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</a>
+				{% if session.get('user_id') %}
+					{% if session.get('user_id') == this_one.user_id %}
+						<a href="{{url_for('catalog.edit',catalog=this_one.name)}}" class="btn btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit</a>
+						<a href="{{url_for('catalog.delete',catalog=this_one.name)}}" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</a>
+					{% endif %}
+					<a href="{{url_for('catalog.item_create')}}" class="btn btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create Item</a>
 				{% endif %}
-				<a href="{{url_for('catalog.item_create')}}" class="btn btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create Item</a>
 			 </div>
 
 

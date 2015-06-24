@@ -9,18 +9,18 @@ import requests
 import string
 import urllib
 from pprint import pprint
-
-
 from flask import session as login_session
-# Import the database object from the main app module
 from app import db, google_secret
 from app.auth.model import User
 
+# Define goolge oauth login
 flow = OAuth2WebServerFlow(client_id=google_secret['client_id'],
                            client_secret=google_secret['client_secret'],
                            scope='openid email',
-                           redirect_uri='http://127.0.0.1:5000/auth/oauth2callback')
+                           redirect_uri='http://127.0.0.1:5000/'
+                           'auth/oauth2callback')
 
+# Defind links and vars related to goolge oauth login
 google_oauth = {
     'oauth_uri': 'https://accounts.google.com/o/oauth2/auth',
     'redirect_uri': 'http://127.0.0.1:5000/auth/oauth2callback',
@@ -33,22 +33,30 @@ google_oauth = {
 
 # Define the blueprint: 'auth', set its url prefix: app.url/auth
 auth = Blueprint('auth', __name__, url_prefix="/auth")
-# Set the route and accepted methods
+
+# Generate a random string for anti csrf
 
 
 def make_state():
     login_session['state'] = ''.join(
-        random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+        random.choice(string.ascii_uppercase
+                      + string.digits) for x in xrange(32))
     return login_session['state']
+
+# Reset the randome string for anti csrf
 
 
 def delete_state():
     del login_session['state']
 
+# Get user info by user id
+
 
 def get_user_info(user_id):
     user = db.session.query(User).filter(User.id == user_id).first()
     return user
+
+# Get user id by email
 
 
 def get_user_id(email):
@@ -59,6 +67,8 @@ def get_user_id(email):
     else:
         return None
 
+# Create user
+
 
 def create_user():
     user = User(name=login_session['username'], picture=login_session[
@@ -67,14 +77,20 @@ def create_user():
     db.session.commit()
     return get_user_id(login_session['email'])
 
+# Get current user id
+
+
 def get_current_user():
     if login_session['user_id'] is not None:
         return get_user_id(login_session['user_id'])
     return None
 
+# User Login
+
+
 @auth.route('/login')
 def login():
-    login_session['origin']=request.referrer
+    login_session['origin'] = request.referrer
     auth_params = {
         'response_type': 'code',
         'client_id': google_secret['client_id'],
@@ -83,6 +99,8 @@ def login():
         'state': make_state()}
     auth_uri = google_oauth['oauth_uri']+'?' + urllib.urlencode(auth_params)
     return redirect(auth_uri)
+
+# Google oauth login call back
 
 
 @auth.route('/oauth2callback', methods=['POST', 'GET'])
@@ -157,10 +175,12 @@ def callback():
     pprint(login_session)
     return redirect(login_session['origin'])
 
+# User logout
+
 
 @auth.route('/logout')
 def logout():
-    login_session['origin']=request.referrer
+    login_session['origin'] = request.referrer
     del login_session['access_token']
     del login_session['gplus_id']
     del login_session['username']

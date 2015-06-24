@@ -1,5 +1,4 @@
 # Import the database object (db) from the main application module
-# We will define this inside /app/__init__.py in the next sections.
 from app import db
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import desc, UniqueConstraint
@@ -20,8 +19,8 @@ class User(db.Model):
 
     def __repr__(self):
         return '<Catalog %s,%s,%s,%s,%s,%s>' % (self.id,
-                                          self.name,
-                                          self.email,
-                                          self.picture,
-                                          self.date_created,
-                                          self.date_modified)
+                                                self.name,
+                                                self.email,
+                                                self.picture,
+                                                self.date_created,
+                                                self.date_modified)

@@ -1,5 +1,4 @@
 # Import the database object (db) from the main application module
-# We will define this inside /app/__init__.py in the next sections.
 from app import db
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import desc, UniqueConstraint
@@ -11,8 +10,10 @@ class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.Text())
+    filename = db.Column(db.String(255))
     catalog_id = db.Column(
-        db.Integer, db.ForeignKey("catalogs.id", ondelete=u"CASCADE"), nullable=False)
+        db.Integer, db.ForeignKey("catalogs.id",
+                                  ondelete=u"CASCADE"), nullable=False)
     catalog = relationship("Catalog")
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user = relationship("User")
@@ -22,21 +23,25 @@ class Item(db.Model):
                               onupdate=db.func.current_timestamp())
 
     def __repr__(self):
-        return '<Item %s,%s,%s>' % (self.id, self.name, self.catalog_id)
+        return '<Item %s,%s,%s,%s>' % (self.id, self.name,
+                                       self.filename, self.catalog_id)
 
+    # for making JSON 
     @property
     def serialize(self):
         return {
             'id': self.id,
             'name': self.name,
-            'description':self.description
+            'description': self.description
         }
+
 
 class Catalog(db.Model):
     __tablename__ = 'catalogs'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    items = relationship("Item", cascade="delete, delete-orphan", backref="Catalog")
+    items = relationship(
+        "Item", cascade="delete, delete-orphan", backref="Catalog")
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user = relationship("User")
     date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
@@ -45,12 +50,14 @@ class Catalog(db.Model):
                               onupdate=db.func.current_timestamp())
 
     def __repr__(self):
-        return '<Catalog %s,%s,%s,%s>' % (self.id, self.name, self.date_created, self.date_modified)
-
+        return '<Catalog %s,%s,%s,%s>' % (self.id, self.name,
+                                          self.date_created,
+                                          self.date_modified)
+    # for making JSON
     @property
     def serialize(self):
         return {
-            'id': self.id, 
+            'id': self.id,
             'name': self.name,
             'items': [i.serialize for i in self.items]
         }
