@@ -288,8 +288,8 @@ def item_delete(catalog, item):
 def json():
     """ For providing JSON data to user
     """
-    json_list = [i.serialize for i in db.session.query(Catalog).all()]
-    return jsonify(json_list)
+    json_data = db.session.query(Catalog).all()
+    return jsonify(json_list=[i.serialize for i in json_data])
 
 
 @catalog.route('/catalog/rss')
