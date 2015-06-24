@@ -6,11 +6,11 @@ This application provides a list of items within a variety of categories as well
 
 ##Getting Started
 
-1.You will need Python version 2.7.6 or up and pip latest version to get started.
-2.Download or clone this repository to your computer.
-3.Install dependency according to requirement.txt or run comand "pip install -r requirement" in your working directory.
-4.Apply Google Oauth client id on https://console.developers.google.com/ , download the secret as JSON format and save as client_secret.json in your working directory.
-5.Run "python run.py" in working directory access http://127.0.0.1:5000 to start.
+1. You will need Python version 2.7.6 or up and pip latest version to get started.
+2. Download or clone this repository to your computer.
+3. Install dependency according to requirement.txt or run comand "pip install -r requirement" in your working directory.
+4. Apply Google Oauth client id on https://console.developers.google.com/ , download the secret as JSON format and save as client_secret.json in your working directory.
+5 .Run "python run.py" in working directory access http://127.0.0.1:5000 to start.
 
 
 ### Reference
