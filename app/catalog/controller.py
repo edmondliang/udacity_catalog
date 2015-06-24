@@ -41,6 +41,15 @@ def upload_file(file):
 # Home page
 
 
+def login_require(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        user_id = login_session.get('user_id')
+        if user_id is None:
+            abort(401)
+        return f(*args, **kwargs)
+    return decorated_function
+
 @catalog.route('/')
 @catalog.route('/catalog/')
 def index():
@@ -74,10 +83,9 @@ def item_detail(catalog, item):
 
 
 @catalog.route('/catalog/create', methods=['GET', 'POST'])
+@login_require
 def create():
     user_id = login_session.get('user_id')
-    if user_id is None:
-        return redirect('/')
     form = CatalogForm(request.form)
     form_action = url_for('catalog.create')
     if request.method == 'POST' and form.validate():
@@ -92,10 +100,9 @@ def create():
 
 
 @catalog.route('/catalog/<string:catalog>/edit', methods=['GET', 'POST'])
+@login_require
 def edit(catalog):
     user_id = login_session.get('user_id')
-    if user_id is None:
-        return redirect('catalog.detail', catalog=catalog)
     this_one = db.session.query(Catalog).filter(
         Catalog.name == catalog).one()
     if not this_one:
@@ -124,10 +131,9 @@ def edit(catalog):
 
 
 @catalog.route('/catalog/<string:catalog>/delete', methods=['GET', 'POST'])
+@login_require
 def delete(catalog):
     user_id = login_session.get('user_id')
-    if user_id is None:
-        return redirect(url_for('catalog.detail', catalog=catalog))
     this_one = db.session.query(Catalog).filter(
         Catalog.name == catalog).one()
     if not this_one:
@@ -165,11 +171,9 @@ def delete(catalog):
 
 # Create item
 @catalog.route('/catalog/item_create', methods=['GET', 'POST'])
+@login_require
 def item_create():
     user_id = login_session.get('user_id')
-    if user_id is None:
-        return redirect('catalog.detail', catalog=catalog)
-
     form = ItemForm(request.form)
     form_action = url_for('catalog.item_create')
     if request.method == 'POST' and form.validate():
@@ -192,11 +196,9 @@ def item_create():
 
 
 @catalog.route('/catalog/<string:catalog>/<string:item>/edit', methods=['GET', 'POST'])
+@login_require
 def item_edit(catalog, item):
     user_id = login_session.get('user_id')
-    if user_id is None:
-        return redirect('catalog.item_detail', catalog=catalog, item=item)
-
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
 
@@ -228,11 +230,9 @@ def item_edit(catalog, item):
 
 
 @catalog.route('/catalog/<string:catalog>/<string:item>/delete', methods=['GET', 'POST'])
+@login_require
 def item_delete(catalog, item):
     user_id = login_session.get('user_id')
-    if user_id is None:
-        return redirect('catalog.item_detail', catalog=catalog, item=item)
-
     this_one = db.session.query(Item).join(Catalog).filter(
         Item.name == item).filter(Catalog.name == catalog).one()
 
