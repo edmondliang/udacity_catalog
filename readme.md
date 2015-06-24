@@ -10,7 +10,7 @@ This application provides a list of items within a variety of categories as well
 2. Download or clone this repository to your computer.
 3. Install dependency according to requirement.txt or run comand "pip install -r requirement" in your working directory.
 4. Apply Google Oauth client id on https://console.developers.google.com/ , download the secret as JSON format and save as client_secret.json in your working directory.
-5 .Run "python run.py" in working directory access http://127.0.0.1:5000 to start.
+5. Run "python run.py" in working directory access http://127.0.0.1:5000 in your browser to start.
 
 
 ### Reference
