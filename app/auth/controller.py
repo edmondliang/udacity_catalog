@@ -14,16 +14,11 @@ from app import db, google_secret
 from app.auth.model import User
 
 # Define goolge oauth login
-flow = OAuth2WebServerFlow(client_id=google_secret['client_id'],
-                           client_secret=google_secret['client_secret'],
-                           scope='openid email',
-                           redirect_uri='http://127.0.0.1:5000/'
-                           'auth/oauth2callback')
+
 
 # Defind links and vars related to goolge oauth login
 google_oauth = {
     'oauth_uri': 'https://accounts.google.com/o/oauth2/auth',
-    'redirect_uri': 'http://127.0.0.1:5000/auth/oauth2callback',
     'scope': 'openid email',
     'exchange_uri': 'https://www.googleapis.com/oauth2/v3/token',
     'userinfo_uri': 'https://www.googleapis.com/oauth2/v2/userinfo',
@@ -99,7 +94,7 @@ def login():
     auth_params = {
         'response_type': 'code',
         'client_id': google_secret['client_id'],
-        'redirect_uri': google_oauth['redirect_uri'],
+        'redirect_uri': url_for('auth.callback', _external=True),
         'scope': google_oauth['scope'],
         'state': make_state()}
     auth_uri = google_oauth['oauth_uri']+'?' + urllib.urlencode(auth_params)
@@ -125,6 +120,12 @@ def callback():
         return response
 
      # Upgrade the authorization code into a credentials object
+    flow = OAuth2WebServerFlow(client_id=google_secret['client_id'],
+                               client_secret=google_secret['client_secret'],
+                               scope='openid email',
+                               redirect_uri=url_for(
+        'auth.callback', _external=True))
+
     try:
         credentials = flow.step2_exchange(code)
         access_token = credentials.access_token
