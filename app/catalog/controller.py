@@ -101,9 +101,14 @@ def create():
     form = CatalogForm(request.form)
     form_action = url_for('catalog.create')
     if request.method == 'POST' and form.validate():
-        catalog = Catalog(name=form.name.data, user_id=user_id)
-        db.session.add(catalog)
-        db.session.commit()
+        try:
+            catalog = Catalog(name=form.name.data, user_id=user_id)
+            db.session.add(catalog)
+            db.session.commit()
+            flash('Catalog created successfully!')
+        except:
+            db.session.rollback()
+            flash('Failed to create this catalog.', 'error')
         return redirect('/')
     return render_template('catalog/catalog_create.html',
                            form_action=form_action, form=form)
@@ -134,9 +139,14 @@ def edit(catalog):
 
     form = CatalogForm(request.form)
     if request.method == 'POST' and form.validate():
-        form.populate_obj(this_one)
-        db.session.merge(this_one)
-        db.session.commit()
+        try:
+            form.populate_obj(this_one)
+            db.session.merge(this_one)
+            db.session.commit()
+            flash('Catalog updated successfully!')
+        except:
+            db.session.rollback()
+            flash('Failed to updated this catalog!', 'error')
         return redirect('/')
     else:
         return redirect(request.path)
@@ -178,8 +188,13 @@ def delete(catalog):
 
     if request.method == 'POST' and form.validate():
         pprint('begin delete')
-        db.session.delete(this_one)
-        db.session.commit()
+        try:
+            db.session.delete(this_one)
+            db.session.commit()
+            flash('Catalog deleted successfully!')
+        except:
+            db.session.rollback()
+            flash('Failed to delete this catalog!', 'error')
         return redirect('/')
     else:
         return redirect(request.path)
@@ -195,17 +210,20 @@ def item_create():
     form = ItemForm(request.form)
     form_action = url_for('catalog.item_create')
     if request.method == 'POST' and form.validate():
-
-        # filename='2342142'
-        filename = upload_file(request.files['image_file'])
-        pprint(form.image_file)
-        item = Item(name=form.name.data,
-                    description=form.description.data,
-                    catalog_id=form.catalog_id.data,
-                    user_id=user_id,
-                    filename=filename)
-        db.session.add(item)
-        db.session.commit()
+        try:
+            filename = upload_file(request.files['image_file'])
+            pprint(form.image_file)
+            item = Item(name=form.name.data,
+                        description=form.description.data,
+                        catalog_id=form.catalog_id.data,
+                        user_id=user_id,
+                        filename=filename)
+            db.session.add(item)
+            db.session.commit()
+            flash('Item created successfully!')
+        except:
+            db.session.rollback()
+            flash('Failed to create this item!', 'error')
         return redirect('/')
     return render_template('catalog/item_create.html',
                            form_action=form_action, form=form)
@@ -241,11 +259,16 @@ def item_edit(catalog, item):
 
     form = ItemForm(request.form)
     if request.method == 'POST' and form.validate():
-        filename = upload_file(request.files['image_file'])
-        form.populate_obj(this_one)
-        this_one.filename = filename
-        db.session.merge(this_one)
-        db.session.commit()
+        try:
+            filename = upload_file(request.files['image_file'])
+            form.populate_obj(this_one)
+            this_one.filename = filename
+            db.session.merge(this_one)
+            db.session.commit()
+            flash('Item updated successfully!')
+        except:
+            db.session.rollback()
+            flash('Failed to update this item!', 'error')
         return redirect('/')
     else:
         return redirect(request.path)
@@ -277,8 +300,13 @@ def item_delete(catalog, item):
                                form_action=form_action, form=form, item=item)
 
     if request.method == 'POST' and form.validate():
-        db.session.delete(this_one)
-        db.session.commit()
+        try:
+            db.session.delete(this_one)
+            db.session.commit()
+            flash('Item deleted successfully!')
+        except:
+            db.session.rollback()
+            flash('Failed to delete this item!', 'error')
         return redirect('/')
     else:
         return redirect(request.path)

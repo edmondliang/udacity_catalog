@@ -71,10 +71,15 @@ def get_user_id(email):
 def create_user():
     """ For Creating user
     """
-    user = User(name=login_session['username'], picture=login_session[
-                'picture'], email=login_session['email'])
-    db.session.add(user)
-    db.session.commit()
+    try:
+        user = User(name=login_session['username'], picture=login_session[
+                    'picture'], email=login_session['email'])
+        db.session.add(user)
+        db.session.commit()
+        flash('User created successfully!')
+    except:
+        db.session.rollback()
+        flash('Failed to creat this user!', 'error')
     return get_user_id(login_session['email'])
 
 
@@ -105,6 +110,7 @@ def login():
 def callback():
     """ For Google oauth login to call back and to process login process
     """
+    pprint(login_session)
     # check data
     error = request.args.get('error')
     code = request.args.get('code').decode('utf-8')
@@ -112,7 +118,7 @@ def callback():
         return redirect('/')
 
     # check cross side attack
-    if request.args.get('state') != login_session['state']:
+    if request.args.get('state') != login_session.get('state'):
         response = make_response(
             json.dumps('Unauthorized access.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -171,9 +177,11 @@ def callback():
     if not user_id:
         user_id = create_user()
     login_session['user_id'] = user_id
+    flash('You were successfully logged in.')
+
     pprint(userinfo)
     pprint(login_session)
-    return redirect(login_session['origin'])
+    return redirect(login_session.get('origin'))
 
 
 @auth.route('/logout')
@@ -188,4 +196,5 @@ def logout():
     del login_session['email']
     del login_session['state']
     del login_session['user_id']
-    return redirect(login_session['origin'])
+    flash('You were successfully logged out.')
+    return redirect(login_session.get('origin'))
