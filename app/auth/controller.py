@@ -190,6 +190,7 @@ def logout():
     """ For user to log out
     """
     login_session['origin'] = request.referrer
+    #delete all user data
     del login_session['access_token']
     del login_session['gplus_id']
     del login_session['username']
