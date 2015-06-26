@@ -37,7 +37,7 @@ def upload_file(file):
     if file and allowed_image_file(file.filename):
         pprint('end checking.')
         filename = secure_filename(file.filename)
-        file.save(os.path.join(APP.config['UPLOAD_FOLDER'], filename))
+        file.save(os.path.abspath(os.path.join(APP.config['UPLOAD_FOLDER'], filename)))
         return url_for('static', filename='upload/'+filename)
 
 

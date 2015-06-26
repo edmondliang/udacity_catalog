@@ -27,5 +27,5 @@ CSRF_SESSION_KEY = "secret"
 SECRET_KEY = "secret"
 
 # Define upload path and max size
-UPLOAD_FOLDER = '/vagrant/catalog/app/static/upload'
+UPLOAD_FOLDER = './app/static/upload'
 MAX_CONTENT_LENGTH = 1024*1024
