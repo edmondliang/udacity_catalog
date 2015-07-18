@@ -14,7 +14,7 @@ app.config.from_object('config')
 # by modules and controllers
 db = SQLAlchemy(app)
 
-with open('client_secret.json') as data_file:
+with open('./client_secret.json') as data_file:
     data = json.load(data_file)
     google_secret = data.get('web')
 
