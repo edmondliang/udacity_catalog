@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-
+import os
 # Import SQLAlchemy
 from flask.ext.sqlalchemy import SQLAlchemy
 
@@ -13,8 +13,9 @@ app.config.from_object('config')
 # Define the database object which is imported
 # by modules and controllers
 db = SQLAlchemy(app)
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-with open('./client_secret.json') as data_file:
+with open(os.path.join(APP_ROOT,'../','client_secret.json')) as data_file:
     data = json.load(data_file)
     google_secret = data.get('web')
 
