@@ -25,8 +25,8 @@ def not_found(error):
     return render_template('404.html'), 404
 
 # Import a module / component using its blueprint handler variable (mod_auth)
-from app.auth.controller import auth
-from app.catalog.controller import catalog
+from .auth.controller import auth
+from .catalog.controller import catalog
 
 # Register blueprint(s)
 app.register_blueprint(auth)

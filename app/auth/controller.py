@@ -10,8 +10,8 @@ import string
 import urllib
 from pprint import pprint
 from flask import session as login_session
-from app import db, google_secret
-from app.auth.model import User
+from .. import db, google_secret
+from model import User
 
 # Define goolge oauth login
 

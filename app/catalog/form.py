@@ -3,7 +3,7 @@ from flask.ext.wtf import Form  # , RecaptchaField
 from wtforms import TextField, HiddenField, TextAreaField, \
     SelectField, BooleanField, FileField
 from wtforms.validators import Required, EqualTo
-from app import db
+from .. import db
 from model import Catalog, Item
 
 

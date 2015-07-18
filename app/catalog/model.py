@@ -1,5 +1,5 @@
 # Import the database object (db) from the main application module
-from app import db
+from .. import db
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import desc, UniqueConstraint
 # Define model

@@ -11,10 +11,10 @@ from app import db
 from flask import session as login_session
 from flask import current_app as APP
 # Import module model
-from app.catalog.model import Catalog, Item
-from app.catalog.form import CatalogForm, ItemForm, DeleteForm
+from model import Catalog, Item
+from form import CatalogForm, ItemForm, DeleteForm
 
-from app.auth import controller as auth
+from ..auth import controller as auth
 from pprint import pprint
 from functools import wraps
 
