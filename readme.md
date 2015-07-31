@@ -1,6 +1,8 @@
 #Catalog Project at Udacity
 This project is part of Udacity course. You can use this project for managing Catalog and related Items.
 
+demo: http://catalog.edmondliang.me
+
 ## Goal
 This application provides a list of items within a variety of categories as well as provide a user registration and authentication system. Registered users will have the ability to post, edit and delete their own items.
 
